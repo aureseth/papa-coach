@@ -24,4 +24,4 @@ function FirebaseTest() {
   );
 }
 
-export default FirebaseTest; 
+export default FirebaseTest;
