@@ -1,0 +1,47 @@
+name: Deploy to o2switch via FTP
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Copy .htaccess to dist
+        run: |
+          if [ -f .htaccess ]; then
+            cp .htaccess dist/.htaccess
+          fi
+
+      - name: Check secrets presence
+        run: |
+          if [ -z "${{ secrets.FTP_HOST }}" ]; then echo "FTP_HOST manquant"; else echo "FTP_HOST OK"; fi
+          if [ -z "${{ secrets.FTP_USERNAME }}" ]; then echo "FTP_USERNAME manquant"; else echo "FTP_USERNAME OK"; fi
+          if [ -z "${{ secrets.FTP_PASSWORD }}" ]; then echo "FTP_PASSWORD manquant"; else echo "FTP_PASSWORD OK"; fi
+          if [ -z "${{ secrets.FTP_TARGET }}" ]; then echo "FTP_TARGET manquant"; else echo "FTP_TARGET OK"; fi
+
+      - name: Upload via FTP
+        uses: samkirkland/ftp-deploy-action@v4.3.4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_TARGET }}
+          local-dir: ./dist/ 
