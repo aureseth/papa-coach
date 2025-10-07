@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { auth, db } from './services/firebase';
 import {
   createUserWithEmailAndPassword,
@@ -8,7 +8,9 @@ import {
   signInAnonymously,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import FirebaseTest from './components/FirebaseTest';
+
+// Lazy loading des composants
+const FirebaseTest = lazy(() => import('./components/FirebaseTest'));
 
 // ===================================================================================
 // --- 2. DONNÉES DE L'APPLICATION ---
@@ -553,7 +555,9 @@ export default function App() {
       </main>
       <AuthModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} showToast={showToast} />
       <Toast {...toastInfo} />
-      <FirebaseTest />
+      <Suspense fallback={<div className="p-4 text-center text-slate-600">Chargement...</div>}>
+        <FirebaseTest />
+      </Suspense>
     </div>
   );
 }
